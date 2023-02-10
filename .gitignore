@@ -1,0 +1,11 @@
+# VSCode
+.vscode
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+
+# Nginx
+
+/nginx

@@ -1,0 +1,8 @@
+# Pyenv
+.python-version
+
+# Env
+venv
+
+# Python
+__pycache__
