@@ -1,3 +1,7 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": ["next/core-web-vitals", "prettier"],
+  "rules": {
+    "@tailwindcss/typography/no-unnecessary-type-scale": "off",
+    "at-rule-no-unknown": 0
+  }
 }
