@@ -9,6 +9,7 @@ app = FastAPI()
 
 origins = [
     "http://localhost:3000",
+    "https://pancakepuncher-literate-winner-vgj6q66w9wh69w9-3000.preview.app.github.dev",
 ]
 
 app.add_middleware(
