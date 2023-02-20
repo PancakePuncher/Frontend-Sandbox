@@ -1,14 +1,4 @@
-"use client"
-
-import { getNewItem } from "@/pages/api/item";
-
-export default function CustButton({color="indigo", children, onClickAction }) {
-
-    let buttonAction = undefined
-
-    if (onClickAction == "getNewItem") {
-        buttonAction = getNewItem
-    }
+export default function CustButton({color="indigo", children, buttonOnClick }) {
 
     const buttonStyles = {
         colors: {
@@ -19,6 +9,6 @@ export default function CustButton({color="indigo", children, onClickAction }) {
     }
 
     return (
-        <button type="button" onClick={buttonAction} className={`rounded-lg ${buttonStyles.colors[color]}`}>{children}</button>
+        <button type="button" onClick={buttonOnClick} className={`rounded-lg ${buttonStyles.colors[color]}`}>{children}</button>
     );
 };
