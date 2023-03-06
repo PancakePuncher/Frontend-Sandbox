@@ -1,6 +1,7 @@
 "use client"
 
 import type { NextPage } from 'next'
+import React from 'react';
 import Head from 'next/head'
 import { useQuery, gql } from '@apollo/client';
 
