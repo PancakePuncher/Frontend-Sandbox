@@ -10,9 +10,8 @@ const query = gql`
         item {
             id
             name
-            icon64
-            iconUrl
             desc
+            icon64
         }
     }
 `;
@@ -32,7 +31,7 @@ const Home: NextPage = () => {
                     <img
                         className="place-self-center h-60"
                         src={data.item.icon64}
-                        alt={data.item.iconUrl}
+                        alt=""
                     />
                     <h2 className="place-self-center h-24 w-96 text-center p-8">
                         {data.item.desc}
