@@ -1,40 +1,7 @@
 import strawberry
-import peewee
-import aiosqlite
-import asyncio
 import random
-from peewee_aio import Manager
+from database.utility.db_util_init import db_connection, Items, all_item_ids
 from strawberry.asgi import GraphQL
-
-manager = Manager("aiosqlite:///database/osrs.db")
-connection = manager.connection()
-
-
-async def get_all_item_ids():
-
-    db = await aiosqlite.connect("database/osrs.db")
-    cursor = await db.execute("SELECT ID FROM items")
-    rows = await cursor.fetchall()
-    await cursor.close()
-    await db.close()
-
-    id_list = []
-    for i in rows:
-        id_list.append(i[0])
-
-    return id_list
-
-
-all_item_ids = asyncio.run(get_all_item_ids())
-
-
-class Items(manager.Model):
-    id = peewee.IntegerField(primary_key=True)
-    name = peewee.CharField()
-    description = peewee.CharField()
-    members = peewee.BooleanField()
-    base64_icon = peewee.CharField()
-    base64_icon_large = peewee.CharField()
 
 
 @strawberry.type
@@ -46,11 +13,16 @@ class Item:
 
 
 @strawberry.type
+class Question:
+    question: str
+
+
+@strawberry.type
 class Query:
     @strawberry.field
-    async def item(self) -> Item:
+    async def randitem(self) -> Item:
         random_item = random.choice(all_item_ids)
-        async with connection:
+        async with db_connection:
             item = await Items.select().where(Items.id == random_item).get()
         return Item(
             id=item.id,
@@ -58,6 +30,11 @@ class Query:
             desc=item.description,
             icon64=item.base64_icon_large,
         )
+
+    @strawberry.field
+    async def randQuestion(self) -> Question:
+
+        return Question(question="I am a random question.")
 
 
 item_schema = GraphQL(strawberry.Schema(query=Query))
