@@ -1,6 +1,7 @@
 # VSCode
 .vscode
 notes.txt
+*.sql
 
 # Docker
 Dockerfile
