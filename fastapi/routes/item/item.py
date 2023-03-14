@@ -6,29 +6,33 @@ from strawberry.asgi import GraphQL
 
 @strawberry.type
 class Item:
-    id: int
-    name: str
-    desc: str
-    icon64: str
+    id: int = None
+    name: str = None
+    desc: str = None
+    icon64: str = None
 
 
 @strawberry.type
 class Question:
-    question: str
+    question: str = None
 
 
 @strawberry.type
 class Query:
     @strawberry.field
     async def randitem(self) -> Item:
-        random_item = random.choice(all_item_ids)
+        if len(all_item_ids) > 0:
+            all_item_ids.pop(0)
+            random_item = random.choice(all_item_ids)
+        else:
+            random_item = 0
         async with db_connection:
-            item = await Items.select().where(Items.id == random_item).get()
+            item = await Items.select().where(Items.pk_id == random_item).get()
         return Item(
-            id=item.id,
-            name=item.name,
-            desc=item.description,
-            icon64=item.base64_icon_large,
+            id=item.pk_id,
+            name=item.item_name_str,
+            desc=item.item_description_str,
+            icon64=item.base64_icon_large_str,
         )
 
     @strawberry.field
