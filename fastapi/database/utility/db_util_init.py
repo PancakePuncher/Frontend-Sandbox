@@ -23,14 +23,16 @@ async def create_database():
     open("./database/osrs.db", "w")
     await Items.create_table()
     async with db_connection:
-        await Items.create(
-            pk_id=0,
-            item_name_str="I am a default Item...",
-            item_description_str="If you're seeing this then your database didn't exist and Python created it.",
-            item_members_bool="True",
-            base64_icon_str="Default",
-            base64_icon_large_str="Default",
-        )
+        test_query = await Items.select().where(Items.pk_id == 0)
+        if len(test_query) == 0:
+            await Items.create(
+                pk_id=0,
+                item_name_str="I am a default Item...",
+                item_description_str="If you're seeing this then your database didn't exist and Python created it.",
+                item_members_bool="True",
+                base64_icon_str="Default",
+                base64_icon_large_str="Default",
+            )
     return True
 
 
