@@ -6,10 +6,10 @@ from strawberry.asgi import GraphQL
 
 @strawberry.type
 class Item:
-    item_id: int = None
-    item_name: str = None
-    item_desc: str = None
-    item_icon64: str = None
+    itemId: int = None
+    itemName: str = None
+    itemDesc: str = None
+    itemIcon64: str = None
 
 
 @strawberry.type
@@ -29,10 +29,10 @@ class Query:
         async with db_connection:
             item = await Items.select().where(Items.pk_item_id == random_item).get()
         return Item(
-            item_id=item.pk_item_id,
-            item_name=item.item_name_str,
-            item_desc=item.item_description_str,
-            item_icon64=item.base64_icon_large_str,
+            itemId=item.pk_item_id,
+            itemName=item.item_name_str,
+            itemDesc=item.item_description_str,
+            itemIcon64=item.base64_icon_large_str,
         )
 
     @strawberry.field

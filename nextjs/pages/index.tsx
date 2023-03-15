@@ -8,10 +8,10 @@ import { useQuery, gql } from "@apollo/client";
 const getItemInfo = gql`
     query {
         randItem {
-            item_id
-            item_name
-            item_desc
-            item_icon64
+            itemId
+            itemName
+            itemDesc
+            itemIcon64
         }
         randQuestion {
             question
@@ -30,15 +30,15 @@ const Home: NextPage = () => {
                 <div>
                     <div className="grid h-96 w-96 mt-36 bg-gray-700 place-content-center rounded-lg border">
                         <h1 className="place-self-center mt-2">
-                            {data.randitem.id + " : " + data.randitem.name}
+                            {data.randItem.itemId + " : " + data.randItem.itemName}
                         </h1>
                         <img
                             className="place-self-center h-60"
-                            src={data.randitem.icon64}
+                            src={data.randItem.itemIcon64}
                             alt=""
                         />
                         <h2 className="place-self-center h-24 w-96 text-center p-8">
-                            {data.randitem.desc}
+                            {data.randItem.itemDesc}
                         </h2>
                     </div>
                     <div className="grid place-content-center mt-4 mb-4 p-4 bg-gray-700 rounded-lg border">
