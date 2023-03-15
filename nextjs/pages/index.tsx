@@ -7,11 +7,11 @@ import { useQuery, gql } from "@apollo/client";
 
 const getItemInfo = gql`
     query {
-        randitem {
-            id
-            name
-            desc
-            icon64
+        randItem {
+            item_id
+            item_name
+            item_desc
+            item_icon64
         }
         randQuestion {
             question
