@@ -14,7 +14,7 @@ const getItemInfo = gql`
             itemIcon64
         }
         randQuestion {
-            question
+            questionText
         }
     }
 `;
@@ -42,7 +42,7 @@ const Home: NextPage = () => {
                         </h2>
                     </div>
                     <div className="grid place-content-center mt-4 mb-4 p-4 bg-gray-700 rounded-lg border">
-                        <p>{data.randQuestion.question}</p>
+                        <p>{data.randQuestion.questionText}</p>
                     </div>
                 </div>
             );
