@@ -60,6 +60,9 @@ class Query:
                 .where(Questions.pk_question_id == random_question)
                 .get()
             )
+            question.question_offered_int = question.question_offered_int + 1
+            await question.save()
+
         return Question(
             questionId=question.pk_question_id,
             questionText=question.question_text_str,
