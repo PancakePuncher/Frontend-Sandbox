@@ -10,7 +10,7 @@ db_connection = master_db.connection()
 
 
 class Items(master_db.Model):
-    pk_item_id = peewee.IntegerField(primary_key=True, default=0)
+    pk_item_id = peewee.IntegerField(primary_key=True)
     item_name_str = peewee.CharField(default="Default Item")
     item_description_str = peewee.CharField(
         default="Check your /database/osrs.db file..."
@@ -21,8 +21,8 @@ class Items(master_db.Model):
 
 
 class Questions(master_db.Model):
-    pk_question_id = peewee.AutoField(primary_key=True, default=0)
-    question_text_str = peewee.CharField(default="Default Question")
+    pk_question_id = peewee.AutoField(primary_key=True)
+    question_text_str = peewee.CharField(default="Default Question", unique=True)
     question_offered_int = peewee.IntegerField(default=0)
     question_answered_int = peewee.IntegerField(default=0)
     question_truthy_int = peewee.IntegerField(default=0)
@@ -30,6 +30,19 @@ class Questions(master_db.Model):
 
 
 async def create_database():
+
+    default_questions = [
+        {"question_text_str": "Can you equip this item?"},
+        {"question_text_str": "Can you eat this item?"},
+        {"question_text_str": "Can you drop this item?"},
+        {"question_text_str": "Can you trade this item?"},
+        {"question_text_str": "Do you need a stat requirement to use this item?"},
+        {"question_text_str": "Do you need this item for a quest?"},
+        {"question_text_str": "Can you only get this item after doing a quest?"},
+        {"question_text_str": "Can you gather this item using a skill?"},
+        {"question_text_str": "Can you only get this item from a monster drop?"},
+        {"question_text_str": "Can you craft this item?"},
+    ]
 
     item_id_list = []
     question_id_list = []
@@ -50,9 +63,10 @@ async def create_database():
                 item_id_list.append(i.pk_item_id)
 
     async with db_connection:
-        test_query = await Questions.select().where(Questions.pk_question_id == 0)
+        test_query = await Questions.select()
         if len(test_query) == 0:
-            await Questions.create()
+            for data_dict in default_questions:
+                await Questions.create_or_get(**data_dict)
         elif len(test_query) > 0:
             async for q in Questions.select():
                 assert q
