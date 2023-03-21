@@ -33,7 +33,6 @@ class Query:
     async def randItem(self) -> Item:
 
         if len(global_item_id_lst) > 1:
-            global_item_id_lst.pop(0)
             random_item = random.choice(global_item_id_lst)
         else:
             random_item = 0
@@ -50,7 +49,6 @@ class Query:
     async def randQuestion(self) -> Question:
 
         if len(global_question_id_lst) > 1:
-            global_question_id_lst.pop(0)
             random_question = random.choice(global_question_id_lst)
         else:
             random_question = 0
