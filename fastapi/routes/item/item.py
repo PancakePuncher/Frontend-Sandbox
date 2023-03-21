@@ -4,8 +4,8 @@ from database.utility.db_util_init import (
     master_db,
     Items,
     Questions,
-    all_item_ids,
-    all_question_ids,
+    global_item_id_lst,
+    global_question_id_lst,
 )
 from strawberry.asgi import GraphQL
 
@@ -32,9 +32,9 @@ class Query:
     @strawberry.field
     async def randItem(self) -> Item:
 
-        if len(all_item_ids) > 1:
-            all_item_ids.pop(0)
-            random_item = random.choice(all_item_ids)
+        if len(global_item_id_lst) > 1:
+            global_item_id_lst.pop(0)
+            random_item = random.choice(global_item_id_lst)
         else:
             random_item = 0
         async with master_db.connection():
@@ -49,9 +49,9 @@ class Query:
     @strawberry.field
     async def randQuestion(self) -> Question:
 
-        if len(all_question_ids) > 1:
-            all_question_ids.pop(0)
-            random_question = random.choice(all_question_ids)
+        if len(global_question_id_lst) > 1:
+            global_question_id_lst.pop(0)
+            random_question = random.choice(global_question_id_lst)
         else:
             random_question = 0
         async with master_db.connection():
