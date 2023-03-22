@@ -70,4 +70,25 @@ class Query:
         )
 
 
-item_schema = GraphQL(strawberry.Schema(query=Query))
+@strawberry.type
+class Mutation:
+    @strawberry.mutation
+    async def updateQuestion(self, answer: int, questionId: int) -> None:
+
+        async with master_db.connection():
+            question = (
+                await Questions.select()
+                .where(Questions.pk_question_id == questionId)
+                .get()
+            )
+            question.question_answered_int += 1
+            if answer == 1:
+                question.question_truthy_int += 1
+            if answer == 0:
+                question.question_falsy_int += 1
+            await question.save()
+
+        return
+
+
+graphql_schema = GraphQL(strawberry.Schema(query=Query, mutation=Mutation))
