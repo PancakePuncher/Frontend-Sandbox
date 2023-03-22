@@ -1,5 +1,6 @@
 import strawberry
 import random
+import asyncio
 from database.utility.db_util_init import (
     master_db,
     Items,
@@ -8,6 +9,8 @@ from database.utility.db_util_init import (
     global_question_id_lst,
 )
 from strawberry.asgi import GraphQL
+
+background_tasks = set()
 
 
 @strawberry.type
@@ -58,8 +61,14 @@ class Query:
                 .where(Questions.pk_question_id == random_question)
                 .get()
             )
-            question.question_offered_int = question.question_offered_int + 1
-            await question.save()
+
+            async def incre_question_off():
+                question.question_offered_int = question.question_offered_int + 1
+                await question.save()
+
+            task = asyncio.create_task(incre_question_off())
+            background_tasks.add(task)
+            task.add_done_callback(background_tasks.discard)
 
         return Question(
             questionId=question.pk_question_id,
@@ -74,19 +83,22 @@ class Query:
 class Mutation:
     @strawberry.mutation
     async def updateQuestion(self, answer: int, questionId: int) -> None:
+        async def incre_question_data():
+            async with master_db.connection():
+                question = (
+                    await Questions.select()
+                    .where(Questions.pk_question_id == questionId)
+                    .get()
+                )
+                question.question_answered_int += 1
+                if answer == 1:
+                    question.question_truthy_int += 1
+                if answer == 0:
+                    question.question_falsy_int += 1
+                await question.save()
 
-        async with master_db.connection():
-            question = (
-                await Questions.select()
-                .where(Questions.pk_question_id == questionId)
-                .get()
-            )
-            question.question_answered_int += 1
-            if answer == 1:
-                question.question_truthy_int += 1
-            if answer == 0:
-                question.question_falsy_int += 1
-            await question.save()
+        task = asyncio.create_task(incre_question_data())
+        background_tasks.add(task)
 
         return
 
