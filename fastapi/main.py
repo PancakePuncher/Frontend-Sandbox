@@ -3,7 +3,7 @@ import sys
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routes.item.item import item_schema
+from routes.item.item import graphql_schema
 
 app = FastAPI()
 
@@ -19,7 +19,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_route("/item", item_schema)
+app.add_route("/graphql", graphql_schema)
 
 
 if __name__ == "__main__":
