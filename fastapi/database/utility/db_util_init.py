@@ -29,6 +29,16 @@ class Questions(master_db.Model):
     question_falsy_int = peewee.IntegerField(default=0)
 
 
+class ItemsQuestionsCombo(master_db.Model):
+    pk_combo_index = peewee.AutoField(primary_key=True)
+    fk_item_id = peewee.ForeignKeyField(Items, to_field="pk_item_id", unique=True)
+    fk_question_id = peewee.ForeignKeyField(
+        Questions, to_field="pk_question_id", unique=False
+    )
+    question_truthy_int = peewee.IntegerField(default=0)
+    question_falsy_int = peewee.IntegerField(default=0)
+
+
 async def create_database():
 
     default_questions = [
@@ -52,6 +62,7 @@ async def create_database():
 
     await Items.create_table()
     await Questions.create_table()
+    await ItemsQuestionsCombo.create_table()
 
     async with db_connection:
         test_query = await Items.select()
