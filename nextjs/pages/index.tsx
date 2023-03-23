@@ -21,8 +21,8 @@ const getItemInfo = gql`
 `;
 
 const sendAnswer = gql`
-    mutation updateQuestion($answer: Int!, $questionId: Int!, $itemId: Int!) {
-        updateQuestion(answer: $answer, questionId: $questionId, itemId: $itemId)
+    mutation receiveUserAnswer($answer: Int!, $questionId: Int!, $itemId: Int!) {
+        receiveUserAnswer(answer: $answer, questionId: $questionId, itemId: $itemId)
     }
 `;
 
@@ -32,7 +32,7 @@ const Home: NextPage = () => {
         context: { uri: "https://code.pancakepuncher.com/proxy/8000/graphql" },
     });
 
-    const [updateQuestion] = useMutation(sendAnswer, {
+    const [userAnswerGraphQLMutation] = useMutation(sendAnswer, {
         context: { uri: "https://code.pancakepuncher.com/proxy/8000/graphql" },
     });
 
@@ -45,7 +45,7 @@ const Home: NextPage = () => {
             }
         }
 
-        updateQuestion(payload)
+        userAnswerGraphQLMutation(payload)
         itemQuery.refetch()
     }
 
