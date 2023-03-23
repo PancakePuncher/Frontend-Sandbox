@@ -1,10 +1,10 @@
 import strawberry
 import random
-import asyncio
 from database.utility.db_util_init import (
     master_db,
     Items,
     Questions,
+    ItemsQuestionsCombo,
     global_item_id_lst,
     global_question_id_lst,
 )
@@ -62,13 +62,8 @@ class Query:
                 .get()
             )
 
-            async def incre_question_off():
-                question.question_offered_int = question.question_offered_int + 1
-                await question.save()
-
-            task = asyncio.create_task(incre_question_off())
-            background_tasks.add(task)
-            task.add_done_callback(background_tasks.discard)
+            question.question_offered_int = question.question_offered_int + 1
+            await question.save()
 
         return Question(
             questionId=question.pk_question_id,
@@ -82,23 +77,50 @@ class Query:
 @strawberry.type
 class Mutation:
     @strawberry.mutation
-    async def updateQuestion(self, answer: int, questionId: int) -> None:
-        async def incre_question_data():
-            async with master_db.connection():
-                question = (
-                    await Questions.select()
-                    .where(Questions.pk_question_id == questionId)
-                    .get()
-                )
-                question.question_answered_int += 1
-                if answer == 1:
-                    question.question_truthy_int += 1
-                if answer == 0:
-                    question.question_falsy_int += 1
-                await question.save()
+    async def receiveUserAnswer(
+        self, answer: int, questionId: int, itemId: int
+    ) -> None:
+        async with master_db.connection():
+            question = (
+                await Questions.select()
+                .where(Questions.pk_question_id == questionId)
+                .get()
+            )
+            question.question_answered_int += 1
+            if answer == 1:
+                truthy = 1
+                falsy = 0
+                question.question_truthy_int += 1
+            if answer == 0:
+                falsy = 1
+                truthy = 0
+                question.question_falsy_int += 1
+            await question.save()
 
-        task = asyncio.create_task(incre_question_data())
-        background_tasks.add(task)
+            look_for_record = (
+                await ItemsQuestionsCombo.select()
+                .where(ItemsQuestionsCombo.fk_item_id == itemId)
+                .get()
+            )
+
+            if look_for_record is None:
+                await ItemsQuestionsCombo.create(
+                    fk_item_id=itemId,
+                    fk_question_id=questionId,
+                    question_truthy_int=truthy,
+                    question_falsy_int=falsy,
+                )
+            elif look_for_record is not None:
+
+                look_for_record.question_truthy_int += truthy
+                look_for_record.question_falsy_int += falsy
+
+                await look_for_record.update(
+                    {
+                        "question_truthy_int": look_for_record.question_truthy_int,
+                        "question_falsy_int": look_for_record.question_falsy_int,
+                    }
+                ).where(ItemsQuestionsCombo.fk_item_id == itemId)
 
         return
 
