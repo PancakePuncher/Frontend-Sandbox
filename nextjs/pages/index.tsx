@@ -21,8 +21,8 @@ const getItemInfo = gql`
 `;
 
 const sendAnswer = gql`
-    mutation updateQuestion($answer: Int!, $questionId: Int!) {
-        updateQuestion(answer: $answer, questionId: $questionId)
+    mutation updateQuestion($answer: Int!, $questionId: Int!, $itemId: Int!) {
+        updateQuestion(answer: $answer, questionId: $questionId, itemId: $itemId)
     }
 `;
 
@@ -35,6 +35,19 @@ const Home: NextPage = () => {
     const [updateQuestion] = useMutation(sendAnswer, {
         context: { uri: "https://code.pancakepuncher.com/proxy/8000/graphql" },
     });
+
+    const onTrueFalseClick = (buttonName: number) => {
+        const payload = {
+                variables: {
+                answer: buttonName,
+                questionId: itemQuery.data.randQuestion.questionId,
+                itemId: itemQuery.data.randItem.itemId
+            }
+        }
+
+        updateQuestion(payload)
+        itemQuery.refetch()
+    }
 
     const itemCard = () => {
         if (itemQuery.data) {
@@ -91,10 +104,10 @@ const Home: NextPage = () => {
                 </div>
                 <div className="grid gap-2 place-content-center mt-28">
                     <div className="grid grid-cols-2 place-content-center gap-5">
-                        <button onClick={() => {updateQuestion({ variables: {answer: 1, questionId: itemQuery.data.randQuestion.questionId}}); itemQuery.refetch()}} className="bg-green-500 my-2 p-2 px-5 rounded-lg">
+                        <button onClick={() => onTrueFalseClick(1)} className="bg-green-500 my-2 p-2 px-5 rounded-lg">
                             True
                         </button>
-                        <button onClick={() => {updateQuestion({ variables: {answer: 0, questionId: itemQuery.data.randQuestion.questionId}}); itemQuery.refetch();}} className="bg-red-500 my-2 p-2 px-5 rounded-lg">
+                        <button onClick={() => onTrueFalseClick(0)} className="bg-red-500 my-2 p-2 px-5 rounded-lg">
                             False
                         </button>
                     </div>
