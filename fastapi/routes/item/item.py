@@ -10,8 +10,6 @@ from database.utility.db_util_init import (
 )
 from strawberry.asgi import GraphQL
 
-background_tasks = set()
-
 
 @strawberry.type
 class Item:
