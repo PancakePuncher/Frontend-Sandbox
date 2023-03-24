@@ -12,48 +12,33 @@ from strawberry.asgi import GraphQL
 
 
 @strawberry.type
-class Item:
+class PageDetails:
     itemId: int = None
     itemName: str = None
     itemDesc: str = None
     itemIcon64: str = None
-
-
-@strawberry.type
-class Question:
     questionId: int = None
     questionText: str = None
-    questionOff: int = None
-    questionT: int = None
-    questionF: int = None
+    truthyValue: int or None = None
+    falsyValue: int or None = None
 
 
 @strawberry.type
 class Query:
     @strawberry.field
-    async def randItem(self) -> Item:
-
-        if len(global_item_id_lst) > 1:
-            random_item = random.choice(global_item_id_lst)
-        else:
-            random_item = 0
+    async def PageDetails(self) -> PageDetails:
         async with master_db.connection():
+            if len(global_item_id_lst) > 1:
+                random_item = random.choice(global_item_id_lst)
+            else:
+                random_item = 0
+
             item = await Items.select().where(Items.pk_item_id == random_item).get()
-        return Item(
-            itemId=item.pk_item_id,
-            itemName=item.item_name_str,
-            itemDesc=item.item_description_str,
-            itemIcon64=item.base64_icon_large_str,
-        )
 
-    @strawberry.field
-    async def randQuestion(self) -> Question:
-
-        if len(global_question_id_lst) > 1:
-            random_question = random.choice(global_question_id_lst)
-        else:
-            random_question = 0
-        async with master_db.connection():
+            if len(global_question_id_lst) > 1:
+                random_question = random.choice(global_question_id_lst)
+            else:
+                random_question = 0
             question = (
                 await Questions.select()
                 .where(Questions.pk_question_id == random_question)
@@ -63,13 +48,41 @@ class Query:
             question.question_offered_int = question.question_offered_int + 1
             await question.save()
 
-        return Question(
+            item_question_combo_record = (
+                await ItemsQuestionsCombo.select()
+                .where(
+                    (ItemsQuestionsCombo.fk_item_id == random_item),
+                    (ItemsQuestionsCombo.fk_question_id == random_question),
+                )
+                .get()
+            )
+
+            currentTruthyVal = 0
+            currentFalsyVal = 0
+            if item_question_combo_record is not None:
+                currentTruthyVal = item_question_combo_record.question_truthy_int
+                currentFalsyVal = item_question_combo_record.question_falsy_int
+
+        return PageDetails(
+            itemId=item.pk_item_id,
+            itemName=item.item_name_str,
+            itemDesc=item.item_description_str,
+            itemIcon64=item.base64_icon_large_str,
             questionId=question.pk_question_id,
             questionText=question.question_text_str,
-            questionOff=question.question_offered_int,
-            questionT=question.question_truthy_int,
-            questionF=question.question_falsy_int,
+            truthyValue=currentTruthyVal,
+            falsyValue=currentFalsyVal,
         )
+
+    # @strawberry.field
+    # async def itemGraphData(self) -> ItemData:
+    #     async with master_db.connection():
+    #         item_question_combo_record = await ItemsQuestionsCombo.select().where(
+    #             (ItemsQuestionsCombo.fk_item_id == random_item)
+    #             and (ItemsQuestionsCombo.fk_question_id == random_question)
+    #         )
+
+    #     return ItemData()
 
 
 @strawberry.type
