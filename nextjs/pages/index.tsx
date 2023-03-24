@@ -1,21 +1,21 @@
 "use client";
 
 import type { NextPage } from "next";
-import React from "react";
+import React, { useState } from "react";
 import Head from "next/head";
 import { useQuery, gql, useMutation } from "@apollo/client";
 
-const getItemInfo = gql`
+const getPageDetails = gql`
     query {
-        randItem {
+        PageDetails {
             itemId
             itemName
             itemDesc
             itemIcon64
-        }
-        randQuestion {
             questionId
             questionText
+            truthyValue
+            falsyValue
         }
     }
 `;
@@ -28,7 +28,9 @@ const sendAnswer = gql`
 
 const Home: NextPage = () => {
 
-    const itemQuery = useQuery(getItemInfo, {
+    const [buttonState, setButtonState] = useState(false)
+
+    const initQuery = useQuery(getPageDetails, {
         context: { uri: "https://code.pancakepuncher.com/proxy/8000/graphql" },
     });
 
@@ -36,44 +38,50 @@ const Home: NextPage = () => {
         context: { uri: "https://code.pancakepuncher.com/proxy/8000/graphql" },
     });
 
-    const onTrueFalseClick = (buttonName: number) => {
+    function buttonStateFlipper() {
+        setButtonState(true)
+        setTimeout(() => setButtonState(false), 500)
+    }
+
+    const onTrueFalseClick = (e: React.MouseEvent<HTMLButtonElement>, buttonName: number) => {
+
         const payload = {
                 variables: {
                 answer: buttonName,
-                questionId: itemQuery.data.randQuestion.questionId,
-                itemId: itemQuery.data.randItem.itemId
+                questionId: initQuery.data.PageDetails.questionId,
+                itemId: initQuery.data.PageDetails.itemId
             }
         }
 
         userAnswerGraphQLMutation(payload)
-        itemQuery.refetch()
+        initQuery.refetch()
     }
 
     const itemCard = () => {
-        if (itemQuery.data) {
+        if (initQuery.data) {
             return (
                 <div>
                     <div className="grid h-96 w-96 mt-36 bg-gray-700 place-content-center rounded-lg border">
                         <h1 className="place-self-center mt-2">
-                            {itemQuery.data.randItem.itemId + " : " + itemQuery.data.randItem.itemName}
+                            {initQuery.data.PageDetails.itemId + " : " + initQuery.data.PageDetails.itemName}
                         </h1>
                         <img
                             className="place-self-center h-60"
-                            src={itemQuery.data.randItem.itemIcon64}
+                            src={initQuery.data.PageDetails.itemIcon64}
                             alt=""
                         />
                         <h2 className="place-self-center h-24 w-96 text-center p-8">
-                            {itemQuery.data.randItem.itemDesc}
+                            {initQuery.data.PageDetails.itemDesc}
                         </h2>
                     </div>
                     <div className="grid place-content-center mt-4 mb-4 p-4 bg-gray-700 rounded-lg border">
-                        <p>{itemQuery.data.randQuestion.questionText}</p>
+                        <p>{initQuery.data.PageDetails.questionText}</p>
                     </div>
                 </div>
             );
         }
 
-        if (itemQuery.loading) {
+        if (initQuery.loading) {
             return (
                 <div className="grid h-96 w-96 mt-10 bg-gray-700 place-content-center rounded-lg border">
                     <h1 className="place-self-center">Retrieving Item</h1>
@@ -81,7 +89,7 @@ const Home: NextPage = () => {
             );
         }
 
-        if (itemQuery.error) {
+        if (initQuery.error) {
             return (
                 <div className="grid h-96 w-96 mt-10 bg-gray-700 place-content-center rounded-lg border">
                     <h1 className="place-self-center">Error Retrieving Item</h1>
@@ -104,16 +112,17 @@ const Home: NextPage = () => {
                 </div>
                 <div className="grid gap-2 place-content-center mt-28">
                     <div className="grid grid-cols-2 place-content-center gap-5">
-                        <button onClick={() => onTrueFalseClick(1)} className="bg-green-500 my-2 p-2 px-5 rounded-lg">
+                        <button disabled={buttonState} onClick={(e) => {onTrueFalseClick(e, 1), buttonStateFlipper()}} className="bg-green-500 my-2 p-2 px-5 rounded-lg">
                             True
                         </button>
-                        <button onClick={() => onTrueFalseClick(0)} className="bg-red-500 my-2 p-2 px-5 rounded-lg">
+                        <button disabled={buttonState} onClick={(e) => {onTrueFalseClick(e, 0), buttonStateFlipper()}} className="bg-red-500 my-2 p-2 px-5 rounded-lg">
                             False
                         </button>
                     </div>
                     <div className="grid grid-cols-1 place-content-center">
                         <button
-                            onClick={() => itemQuery.refetch()}
+                            disabled={buttonState}
+                            onClick={() => {initQuery.refetch(), buttonStateFlipper()}}
                             className="bg-indigo-500 p-2 px-5 rounded-lg"
                         >
                             New Item
