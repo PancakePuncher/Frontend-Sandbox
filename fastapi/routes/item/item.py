@@ -74,17 +74,6 @@ class Query:
             falsyValue=currentFalsyVal,
         )
 
-    # @strawberry.field
-    # async def itemGraphData(self) -> ItemData:
-    #     async with master_db.connection():
-    #         item_question_combo_record = await ItemsQuestionsCombo.select().where(
-    #             (ItemsQuestionsCombo.fk_item_id == random_item)
-    #             and (ItemsQuestionsCombo.fk_question_id == random_question)
-    #         )
-
-    #     return ItemData()
-
-
 @strawberry.type
 class Mutation:
     @strawberry.mutation
